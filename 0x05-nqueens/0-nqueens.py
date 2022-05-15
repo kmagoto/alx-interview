@@ -1,66 +1,57 @@
 #!/usr/bin/python3
-""" This is a module for N queens NP problem.
-"""
 
-if __name__ == '__main__':
+import sys
 
-    import sys
 
+def solve(row, column):
+    solver = [[]]
+    for q in range(row):
+        solver = place_queen(q, column, solver)
+    return solver
+
+
+def place_queen(q, column, prev_solver):
+    solver_queen = []
+    for array in prev_solver:
+        for x in range(column):
+            if is_safe(q, x, array):
+                solver_queen.append(array + [x])
+    return solver_queen
+
+
+def is_safe(q, x, array):
+    if x in array:
+        return (False)
+    else:
+        return all(abs(array[column] - x) != q - column
+                   for column in range(q))
+
+
+def init():
     if len(sys.argv) != 2:
         print("Usage: nqueens N")
         sys.exit(1)
-    try:
-        size = int(sys.argv[1])
-    except BaseException:
+    if sys.argv[1].isdigit():
+        the_queen = int(sys.argv[1])
+    else:
         print("N must be a number")
         sys.exit(1)
-    if size < 4:
+    if the_queen < 4:
         print("N must be at least 4")
         sys.exit(1)
+    return(the_queen)
 
-    def startSolve():
-        b = [[0 for j in range(size)] for i in range(size)]
-        checkRecursive(b, 0)
-        return
 
-    def checkRecursive(b, c):
-        if (c == size):
-            solution(b)
-            return True
-        ret = False
-        for i in range(size):
-            if (checkPosition(b, i, c)):
-                b[i][c] = 1
-                ret = checkRecursive(b, c + 1) or ret
-                b[i][c] = 0
-        return ret
+def n_queens():
 
-    def checkPosition(b, r, c):
-        for i in range(c):
-            if (b[r][i]):
-                return False
-        i = r
-        j = c
-        while i >= 0 and j >= 0:
-            if(b[i][j]):
-                return False
-            i = i - 1
-            j = j - 1
-        i = r
-        j = c
-        while j >= 0 and i < size:
-            if(b[i][j]):
-                return False
-            i = i + 1
-            j = j - 1
-        return True
+    the_queen = init()
+    solver = solve(the_queen, the_queen)
+    for array in solver:
+        clean = []
+        for q, x in enumerate(array):
+            clean.append([q, x])
+        print(clean)
 
-    def solution(b):
-        solve = []
-        for i in range(size):
-            for j in range(size):
-                if(b[i][j] is 1):
-                    solve.append([i, j])
-        print(solve)
-        solve.clear()
-    startSolve()
+
+if __name__ == '__main__':
+    n_queens()
