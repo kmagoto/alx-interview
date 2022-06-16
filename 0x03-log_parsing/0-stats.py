@@ -1,37 +1,58 @@
 #!/usr/bin/python3
-""" A script that reads stdin line by line and computes metrics
+"""
+parsing function
 """
 import sys
 
-if __name__ == '__main__':
 
-    filesize, count = 0, 0
-    codes = ["200", "301", "400", "401", "403", "404", "405", "500"]
-    stats = {k: 0 for k in codes}
+counters = {
+    "size": 0,
+    "lines": 1
+}
 
-    def print_stats(stats: dict, file_size: int) -> None:
-        print("File size: {:d}".format(filesize))
-        for k, v in sorted(stats.items()):
-            if v:
-                print("{}: {}".format(k, v))
+cntCode = {
+    "200": 0, "301": 0, "400": 0, "401": 0,
+    "403": 0, "404": 0, "405": 0, "500": 0
+}
 
+
+def printCodes():
+    """
+    function to print the codes and the number of ocurrence
+    """
+    # print file size
+    print("File size: {}".format(counters["size"]))
+    # print all codes
+    for key in sorted(cntCode.keys()):
+        # if a val is not 0
+        if cntCode[key] != 0:
+            print("{}: {}".format(key, cntCode[key]))
+
+
+def countCodeSize(listData):
+    """
+    count the codes and file size
+    """
+    # count file size
+    counters["size"] += int(listData[-1])
+    # if exists the code
+    if listData[-2] in cntCode:
+        # count status code
+        cntCode[listData[-2]] += 1
+        # line 10 print
+
+
+if __name__ == "__main__":
     try:
         for line in sys.stdin:
-            count += 1
-            data = line.split()
             try:
-                status_code = data[-2]
-                if status_code in stats:
-                    stats[status_code] += 1
-            except BaseException:
+                countCodeSize(line.split(" "))
+            except:
                 pass
-            try:
-                filesize += int(data[-1])
-            except BaseException:
-                pass
-            if count % 10 == 0:
-                print_stats(stats, filesize)
-        print_stats(stats, filesize)
+            if counters["lines"] % 10 == 0:
+                printCodes()
+            counters["lines"] += 1
     except KeyboardInterrupt:
-        print_stats(stats, filesize)
+        printCodes()
         raise
+    printCodes()

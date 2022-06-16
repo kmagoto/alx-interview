@@ -1,41 +1,125 @@
-#!/usr/bin/env python3
-""" The N queens puzzle is the challenge of placing N non-attacking queens on
-    an N×N chessboard. Write a program that solves the N queens problem.
-    Usage: nqueens N
-        If the user called the program with the wrong number of arguments,
-        print Usage: nqueens N, followed by a new line,
-        and exit with the status 1
-    where N must be an integer greater or equal to 4
-        If N is not an integer, print N must be a number,
-        followed by a new line, and exit with the status 1
-        If N is smaller than 4, print N must be at least 4,
-        followed by a new line, and exit with the status 1
-    The program should print every possible solution to the problem
-        One solution per line
-        You don’t have to print the solutions in a specific order
-    You are only allowed to import the sys module """
+#!/usr/bin/python3
+"""
+N queens
+"""
 import sys
 
 
-def nqueens(n: int):
+def diagonals(results, N):
     """
-    backtracking
+    list with diagonals
     """
-    matrix = [[0 for x in range(n)] for y in range(n)]
-    print(str(matrix))
+    # fill diagonals
+    diagonals = []
+    for i in results:
+        # up-left
+        it_row = i[0]
+        it_col = i[1]
+        while it_col >= 0 and it_col < N and it_row >= 0 and it_row < N:
+            if [it_row, it_col] not in diagonals:
+                diagonals.append([it_row, it_col])
+            it_row -= 1
+            it_col -= 1
 
+        # up-right
+        it_row = i[0]
+        it_col = i[1]
+        while it_col >= 0 and it_col < N and it_row >= 0 and it_row < N:
+            if [it_row, it_col] not in diagonals:
+                diagonals.append([it_row, it_col])
+            it_row -= 1
+            it_col += 1
+
+        # up-right
+        it_row = i[0]
+        it_col = i[1]
+        while it_col >= 0 and it_col < N and it_row >= 0 and it_row < N:
+            if [it_row, it_col] not in diagonals:
+                diagonals.append([it_row, it_col])
+            it_row += 1
+            it_col -= 1
+
+        # down-right
+        it_row = i[0]
+        it_col = i[1]
+        while it_col >= 0 and it_col < N and it_row >= 0 and it_row < N:
+            if [it_row, it_col] not in diagonals:
+                diagonals.append([it_row, it_col])
+            it_row += 1
+            it_col += 1
+
+    return diagonals
+
+
+def isSafe(row, col, results, N):
+    """
+    know if safe a position
+    """
+    # validate columns
+    for _row in range(N):
+        if [_row, col] in results:
+            return False
+
+    return not [row, col] in diagonals(results, N)
+
+
+def chess(N):
+    """
+    iterate the positions
+    """
+    result = []
+    row = 0
+    col = 0
+
+    while row < N:
+        while col < N:
+            if isSafe(row, col, result, N):
+                result.append([row, col])
+                break
+            col += 1
+
+        # if a new position not exists in results
+        if len(result) != (row + 1):
+            row -= 1
+            if row < 0:
+                break
+            col = result[row][1] + 1
+            del result[row]
+            continue
+        elif len(result) == N:
+            print(result)
+            col += 1
+            del result[row]
+            continue
+        row += 1
+        col = 0
+
+
+def start():
+    """
+    N queens
+    """
+    args = sys.argv
+
+    # Usage error
+    if len(args) is not 2:
+        print("Usage: nqueens N")
+        sys.exit(1)
+
+    # type value error
+    try:
+        int(args[1])
+    except:
+        print("N must be a number")
+        sys.exit(1)
+
+    # less than 4 error
+    if int(args[1]) < 4:
+        print("N must be at least 4")
+        sys.exit(1)
+
+    N = int(args[1])
+    chess(N)
 
 if __name__ == "__main__":
-    if len(sys.argv) > 2 or len(sys.argv) < 2:
-        print("Usage: nqueens N")
-        exit(1)
-
-    if not sys.argv[1].isdigit():
-        print("N must be a number")
-        exit(1)
-
-    if int(sys.argv[1]) < 4:
-        print("N must be at least 4")
-        exit(1)
-
-    nqueens(int(sys.argv[1]))
+    start()
