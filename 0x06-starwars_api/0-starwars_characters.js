@@ -1,27 +1,28 @@
 #!/usr/bin/node
-
+/*
+  Star Wars Characters
+*/
 const request = require('request');
+const apiUrl = 'https://swapi-api.hbtn.io/api/films/'.concat(process.argv[2]);
 
-const req = (arr, i) => {
-  if (i === arr.length) return;
-  request(arr[i], (err, response, body) => {
-    if (err) {
-      throw err;
-    } else {
-      console.log(JSON.parse(body).name);
-      req(arr, i + 1);
-    }
-  });
-};
-
-request(
-  `https://swapi-api.hbtn.io/api/films/${process.argv[2]}`,
-  (err, response, body) => {
-    if (err) {
-      throw err;
-    } else {
-      const chars = JSON.parse(body).characters;
-      req(chars, 0);
-    }
+request(apiUrl, async function (error, response, body) {
+  if (error) {
+    console.log(error);
+    return;
   }
-);
+  const characters = JSON.parse(body).characters;
+
+  for (let i = 0; i < characters.length; i++) {
+    await new Promise(function (resolve, reject) {
+      request(characters[i], function (err, res, bod) {
+        if (err) {
+          console.log(err);
+          reject(err);
+        } else {
+          console.log(JSON.parse(bod).name);
+          resolve();
+        }
+      });
+    });
+  }
+});
